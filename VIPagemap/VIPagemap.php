@@ -109,6 +109,4 @@ class VINavigation {
     
 }
 
-require_once('pagemap_setup.php');
-
 ?>
