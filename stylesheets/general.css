@@ -76,6 +76,14 @@ ul.list li.indent-level-2 {
 .hidden {display: none;}
 .center {margin: 0px auto;}
 .text-center {position: absolute; top: 50%; margin-top: -0.5em; width: 100%; text-align: center;}
+/*
+works to center text vertically in div:
+<div class="vertical-align-parent">
+    <div class="vertical-align">centered text</div>
+</div>
+*/
+.vertical-align-parent {display:table}
+.vertical-align {display:table-cell; vertical-align:middle; height:100%;}
 .right {float: right;}
 .left {float: left;}
 .small {font-size: 0.75em;}
