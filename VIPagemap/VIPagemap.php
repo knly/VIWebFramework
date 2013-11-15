@@ -4,10 +4,16 @@ class VIPagemap {
 
     protected $pages = array();
     
+    public $root_url;
+    
     public $default_page;
     public $error_page;
     
     public $main_title;
+
+    function __construct() {
+        $this->root_url = '/';
+    }
 
     function addPage(VIPage $page) {
         $this->pages[$page->id] = $page;
@@ -37,6 +43,10 @@ class VIPagemap {
     }
     function isCurrentPage($page) {
         return $this->currentPage()==$page;
+    }
+    
+    function getUrlForPage($page) {
+        return $this->root_url.$page->id;
     }
     
     function checkURL() {
@@ -84,13 +94,16 @@ class VIPage {
         $this->id = $id;
         $this->file = 'content_'.$id.'.php';
     }
-    
+
     function setParent(VIPage $parent) {
         $this->parent = $parent;
         $parent->addChild($this);
     }
     function addChild(VIPage $child) {
-        $children[] = $child;
+        $this->children[] = $child;
+    }
+    function allChildren() {
+        return $this->children;
     }
     
 }
