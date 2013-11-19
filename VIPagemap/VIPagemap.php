@@ -101,12 +101,12 @@ class VIPage {
     // optional array to specify options
     public $options;
     
-    // when set to another page, it gets included instead
+    // when set to another page, that page gets included instead
     public $forward;
     
     // tree structure for nested pages
-    public $parent;
-    public $children;
+    public $parentPage;
+    public $childPages;
     
     // constructor
     function __construct($id) {
@@ -115,19 +115,19 @@ class VIPage {
         $this->options = array();
     }
 
-    function setParent(VIPage $parent) {
-        $this->parent = $parent;
-        $parent->addChild($this);
+    function setParentPage(VIPage $parent) {
+        $this->parentPage = $parentPage;
+        $parentPage->addChildPage($this);
     }
-    function addChild(VIPage $child) {
-        $this->children[] = $child;
-        $child->parent = $this;
+    function addChildPage(VIPage $child) {
+        $this->childPages[] = $child;
+        $child->parentPage = $this;
     }
     function isChildOf(VIPage $page) {
-        $the_current_page = $this->parent;
+        $the_current_page = $this->parentPage;
         while(isset($the_current_page)) {
             if ($the_current_page==$page) return true;
-            $the_current_page = $the_current_page->parent;
+            $the_current_page = $the_current_page->parentPage;
         }
         return false;
     }

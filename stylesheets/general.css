@@ -12,7 +12,7 @@ body {
 .text-resize-large {
 	font-size: 1.3em;
 }
-p, .text, label, input {
+p, #main ul, .text, label, input {
 	font-size: 1.4em;
 	line-height: 1.6em;
 }
@@ -59,7 +59,7 @@ a:hover {
 li {
 	float: left;
 }
-ul.list li {
+#main li, ul.list li {
 	list-style: circle;
 	margin-left: 2em;
 	float: none;
