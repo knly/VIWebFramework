@@ -111,7 +111,7 @@ class VIPage {
     // constructor
     function __construct($id) {
         $this->id = $id;
-        $this->file = 'content_'.$id.'.php';
+        $this->file = $id.'.php';
         $this->options = array();
     }
 
