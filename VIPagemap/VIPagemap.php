@@ -145,6 +145,49 @@ class VINavigation {
         return $this->elements;
     }
     
+    function htmlRepresentation($class_ul, $pagemap, $clean_url) {
+		print($clean_url);
+		$link_prefix = '';
+		if($clean_url==False) {
+			$link_prefix .= 'index.php?p=';
+		}
+    	$html = '<ul class="'.$class_ul.'">';
+	    foreach ($this->allElements() as $page) {
+			$html .= '<li class="';
+			if ($pagemap->isCurrentPage($page)) {
+				$html .= 'active';
+			}
+			if (count($page->childPages)>0) {
+				$html .= ' dropdown';
+			}
+			$html .= '"><a';
+			if (count($page->childPages)>0) {
+				$html .= ' class="dropdown-toggle" data-toggle="dropdown"';
+			}
+			$html .= ' href="'.$link_prefix.$page->id.'">'.$page->title;
+			if (count($page->childPages)>0) {
+			  $html .= ' <b class="caret"></b>';
+			}
+			$html .= '</a>';
+			if (count($page->childPages)>0) {
+				$html .= '<ul class="dropdown-menu">';
+				foreach ($page->childPages as $child) {
+					$html .= '<li';
+					if ($pagemap->isCurrentPage($child)) {
+						$html .= ' class="active"';
+					}
+					$html .= '><a href="'.$link_prefix.$child->id.'">'.$child->title.'</a></li>';
+				}
+				$html .= '</ul>';
+			}
+			
+			$html .= '</li>';
+		}
+		$html .= '</ul>';
+		return $html;
+
+    }
+    
 }
 
 ?>
