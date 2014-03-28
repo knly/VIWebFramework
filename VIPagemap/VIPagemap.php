@@ -60,7 +60,7 @@ class VIPagemap {
     function checkURL() {
         // redirect when directly accessing index.php
         $page = $this->currentPage();
-        $correct_url = $page->id;
+        $correct_url = $page->displayURL();
         if ($page->id==$this->default_page->id) $correct_url = '';
         $actual_url = preg_replace ('/\?.*$/', '', $_SERVER['REQUEST_URI']);
         if ($actual_url != "/$correct_url") {Header ("Location: /$correct_url", true, 301); exit;}
@@ -98,6 +98,10 @@ class VIPage {
     // the file path to the page content
     public $file;
     
+    // when set, checkURL() redirects to the specified url and an appropriate rewrite rule is needed (-> /.htaccess)
+    // url items prepended with the $ character are replaced with the value of the $_GET variable of the same name
+    public $display_url;
+    
     // optional array to specify options
     public $options;
     
@@ -131,6 +135,21 @@ class VIPage {
         }
         return false;
     }
+    function displayURL() {
+	    if (isset($this->display_url)) {
+		    $display_url = $this->display_url;
+		    $url_items = explode('/', $display_url);
+		    $replaced_url_items = [];
+		    foreach ($url_items as $url_item) {
+			    if ($url_item[0]=='$') {
+				    $url_item = $_GET[substr($url_item, 1)];
+			    }
+			    $replaced_url_items[] = $url_item;
+		    }
+		    return implode('/', $replaced_url_items);
+	    }
+	    return $this->id;
+    }
 }
 
 class VINavigation {
@@ -147,10 +166,6 @@ class VINavigation {
     
     function htmlRepresentation($class_ul, $pagemap, $clean_url) {
 		print($clean_url);
-		$link_prefix = '';
-		if($clean_url==False) {
-			$link_prefix .= 'index.php?p=';
-		}
     	$html = '<ul class="'.$class_ul.'">';
 	    foreach ($this->allElements() as $page) {
 			$html .= '<li class="';
@@ -164,7 +179,7 @@ class VINavigation {
 			if (count($page->childPages)>0) {
 				$html .= ' class="dropdown-toggle" data-toggle="dropdown"';
 			}
-			$html .= ' href="'.$link_prefix.$page->id.'">'.$page->title;
+			$html .= ' href="/'.$page->id.'">'.$page->title;
 			if (count($page->childPages)>0) {
 			  $html .= ' <b class="caret"></b>';
 			}
@@ -176,7 +191,7 @@ class VINavigation {
 					if ($pagemap->isCurrentPage($child)) {
 						$html .= ' class="active"';
 					}
-					$html .= '><a href="'.$link_prefix.$child->id.'">'.$child->title.'</a></li>';
+					$html .= '><a href="/'.$child->id.'">'.$child->title.'</a></li>';
 				}
 				$html .= '</ul>';
 			}
