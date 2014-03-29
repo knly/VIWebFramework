@@ -54,7 +54,7 @@ class VIPagemap {
     }
     
     function getUrlForPage($page) {
-        return $this->root_url.$page->id;
+        return $this->root_url.$page->displayURL();
     }
     
     function checkURL() {
@@ -139,7 +139,7 @@ class VIPage {
 	    if (isset($this->display_url)) {
 		    $display_url = $this->display_url;
 		    $url_items = explode('/', $display_url);
-		    $replaced_url_items = [];
+		    $replaced_url_items = array();
 		    foreach ($url_items as $url_item) {
 			    if ($url_item[0]=='$') {
 				    $url_item = $_GET[substr($url_item, 1)];
@@ -164,8 +164,7 @@ class VINavigation {
         return $this->elements;
     }
     
-    function htmlRepresentation($class_ul, $pagemap, $clean_url) {
-		print($clean_url);
+    function htmlRepresentation($class_ul, $pagemap) {
     	$html = '<ul class="'.$class_ul.'">';
 	    foreach ($this->allElements() as $page) {
 			$html .= '<li class="';

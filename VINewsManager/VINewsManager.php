@@ -44,7 +44,7 @@ class VINewsItem {
     public $date;
     public $content;
     
-	public function __construct($id) {
+	public function __construct($id=NULL) {
 		$this->id = $id;
 	}
 
@@ -54,7 +54,7 @@ class VINewsItem {
     
     public function setTitle($title) {
 	    if (!isset($this->id)) {
-		    $this->id = ereg_replace("[-]+", "-", ereg_replace("[^a-z0-9-]", "", strtolower( str_replace(" ", "-", $title) ) ) );;
+		    $this->id = preg_replace("/[-]+/", "-", preg_replace("/[^a-z0-9-]/", "", strtolower( str_replace(" ", "-", $title) ) ) );;
 	    }
 	    $this->title = $title;
     }
