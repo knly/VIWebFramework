@@ -1,10 +1,14 @@
 <?php
 
+define("VI_ENV_DEBUG", "VI_ENV_DEBUG");
+define("VI_ENV_RELEASE", "VI_ENV_RELEASE");
+
 class VIPagemap {
 
     protected $pages = array();
     
     public $root_url;
+    public $env;
     
     // the page to load when none is specified
     public $default_page;
@@ -18,6 +22,7 @@ class VIPagemap {
     // constructor
     function __construct() {
         $this->root_url = '/';
+        $this->env = VI_ENV_RELEASE;
     }
 
     function addPage(VIPage $page) {
