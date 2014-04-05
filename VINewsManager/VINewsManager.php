@@ -60,6 +60,7 @@ class VINewsItem {
     }
     
     function setDateFromString($date_str) {
+    	date_default_timezone_set('Europe/Berlin');
         $this->date = strtotime($date_str);
     }
     function getDateAsString() {
