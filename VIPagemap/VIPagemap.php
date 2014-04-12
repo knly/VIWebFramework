@@ -7,8 +7,9 @@ class VIPagemap {
 
     protected $pages = array();
     
-    public $root_url;
     public $env;
+    public $baseurl;
+    public $basedir;
     
     // the page to load when none is specified
     public $default_page;
@@ -21,8 +22,9 @@ class VIPagemap {
 
     // constructor
     function __construct() {
-        $this->root_url = '/';
         $this->env = VI_ENV_RELEASE;
+        $this->baseurl = '';
+        $this->basedir = '';
     }
 
     function addPage(VIPage $page) {
@@ -59,16 +61,16 @@ class VIPagemap {
     }
     
     function getUrlForPage($page) {
-        return $this->root_url.$page->displayURL();
+        return $this->baseurl.$page->displayURL();
     }
     
     function checkURL() {
         // redirect when directly accessing index.php
         $page = $this->currentPage();
         $correct_url = $page->displayURL();
-        if ($page->id==$this->default_page->id) $correct_url = '';
+        if ($page->id==$this->default_page->id) $correct_url = '/';
         $actual_url = preg_replace ('/\?.*$/', '', $_SERVER['REQUEST_URI']);
-        if ($actual_url != "/$correct_url") {Header ("Location: /$correct_url", true, 301); exit;}
+        if ($actual_url != $this->basedir.$correct_url) {Header ("Location: $correct_url", true, 301); exit;}
     }
     
     function makeSitemap() {
@@ -146,14 +148,14 @@ class VIPage {
 		    $url_items = explode('/', $display_url);
 		    $replaced_url_items = array();
 		    foreach ($url_items as $url_item) {
-			    if ($url_item[0]=='$') {
+			    if ($url_item!=''&&$url_item[0]=='$') {
 				    $url_item = $_GET[substr($url_item, 1)];
 			    }
 			    $replaced_url_items[] = $url_item;
 		    }
 		    return implode('/', $replaced_url_items);
 	    }
-	    return $this->id;
+	    return '/'.$this->id;
     }
 }
 
