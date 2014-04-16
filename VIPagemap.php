@@ -1,79 +1,69 @@
 <?php
 
-define("VI_ENV_DEBUG", "VI_ENV_DEBUG");
-define("VI_ENV_RELEASE", "VI_ENV_RELEASE");
-
 class VIPagemap {
 
-    protected $pages = array();
+    static protected $pages = array();
     
-    public $env;
-    public $baseurl;
-    public $basedir;
+    // URL to document root
+    static public $baseurl;
+    // Dir on server
+    static public $basedir;
     
     // the page to load when none is specified
-    public $default_page;
+    static public $default_page;
     
     // error page
-    public $error_page;
+    static public $error_page;
     
     // main title
-    public $main_title;
+    static public $main_title;
 
-    // constructor
-    function __construct() {
-        $this->env = VI_ENV_RELEASE;
-        $this->baseurl = '';
-        $this->basedir = '';
+
+    static public function addPage($id) {
+    	if (!isset(self::$pages[$id])) {
+	        self::$pages[$id] = new VIPage($id);
+    	}
+        return self::$pages[$id];
     }
 
-    function addPage(VIPage $page) {
-        $this->pages[$page->id] = $page;
+    static public function getPage($id) {
+        if (!isset(self::$pages[$id])) return NULL;
+        return self::$pages[$id];
     }
 
-    function addPageWithID($id) {
-        $page = new VIPage($id);
-        $this->addPage($page);
-        return $page;
-    }
-
-    function pageWithID($id) {
-        if (!isset($this->pages[$id])) return null;
-        return $this->pages[$id];
-    }
-
-    function allPages() {
-        return $this->pages;
+    static public function allPages() {
+        return self::$pages;
     }
     
-    function currentPage() {
+    static public function getCurrentPage() {
         $current_page = NULL;
         if (isset($_GET['p'])) {
-            $current_page = $this->pageWithID($_GET['p']);
-    		if (!isset($current_page)) $current_page = $this->error_page;
+            $current_page = self::getPage($_GET['p']);
+    		if (!isset($current_page)) $current_page = self::$error_page;
 		}
-		if (!isset($current_page)) $current_page = $this->default_page;
+		if (!isset($current_page)) $current_page = self::$default_page;
 		if (isset($current_page)&&isset($current_page->forward)) $current_page = $current_page->forward;
 		return $current_page;
     }
-    function isCurrentPage($page) {
-        return $this->currentPage()==$page;
+    static public function isCurrentPage($page) {
+        return self::getCurrentPage()==$page;
     }
     
-    function getUrlForPage($page) {
-        return $this->baseurl.$page->displayURL();
+    static public function getUrlForPage($page) {
+        return self::$baseurl.$page->displayURL();
     }
     
-    function checkURL() {
+    static public function checkURL() {
         // redirect when directly accessing index.php
-        $page = $this->currentPage();
+        $page = self::getCurrentPage();
         $correct_url = $page->displayURL();
-        if ($page->id==$this->default_page->id) $correct_url = '/';
+        if ($page->getID()==self::$default_page->getID()) $correct_url = '/';
         $actual_url = preg_replace ('/\?.*$/', '', $_SERVER['REQUEST_URI']);
-        if ($actual_url != $this->basedir.$correct_url) {Header ("Location: $correct_url", true, 301); exit;}
+        if ($actual_url != self::$basedir.$correct_url) {Header ("Location: $correct_url", true, 301); exit;}
     }
     
-    function makeSitemap() {
+    // TODO: implement properly
+    static public function makeSitemap() {
     
         header('Content-Type: application/xml');
 
@@ -81,7 +71,7 @@ class VIPagemap {
 
        	echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
-       	foreach($this->allPages() as $page) {
+       	foreach(self::allPages() as $page) {
 
             echo "<url>\n";
             echo "<loc>/".$page->id."</loc>\n";
@@ -100,41 +90,59 @@ class VIPagemap {
 class VIPage {
     
     // identifies the page
-    public $id;
+    protected $id;
     
-    // the file path to the page content
-    public $file;
+    // the corresponding filename
+    public $filename;
     
     // when set, checkURL() redirects to the specified url and an appropriate rewrite rule is needed (-> /.htaccess)
     // url items prepended with the $ character are replaced with the value of the $_GET variable of the same name
     public $display_url;
     
     // optional array to specify options
-    public $options;
+    public $options = array();
     
     // when set to another page, that page gets included instead
     public $forward;
     
     // tree structure for nested pages
-    public $parentPage;
-    public $childPages;
+    protected $parentPage;
+    protected $childPages;
     
     // constructor
-    function __construct($id) {
+    public function __construct($id) {
         $this->id = $id;
-        $this->file = $id.'.php';
-        $this->options = array();
+    }
+    
+    public function getID() {
+	    return $this->id;
     }
 
-    function setParentPage(VIPage $parent) {
+    public function getFile() {
+	    if (isset($this->file)) {
+		    return $this->file;
+	    }
+	    return $this->id.'.php';
+    }
+
+    // Tree structure
+    public function setParentPage(VIPage $parent) {
         $this->parentPage = $parentPage;
         $parentPage->addChildPage($this);
     }
-    function addChildPage(VIPage $child) {
+    public function getParentPage() {
+	    return $this->parentPage;
+    }
+
+    public function addChildPage(VIPage $child) {
         $this->childPages[] = $child;
         $child->parentPage = $this;
     }
-    function isChildOf(VIPage $page) {
+    public function getChildPages() {
+	    return $this->childPages;
+    }
+    
+    public function isChildOf(VIPage $page) {
         $the_current_page = $this->parentPage;
         while(isset($the_current_page)) {
             if ($the_current_page==$page) return true;
@@ -142,7 +150,10 @@ class VIPage {
         }
         return false;
     }
-    function displayURL() {
+    
+    
+    
+    public function displayURL() {
 	    if (isset($this->display_url)) {
 		    $display_url = $this->display_url;
 		    $url_items = explode('/', $display_url);
@@ -161,43 +172,43 @@ class VIPage {
 
 class VINavigation {
     
-    private $elements;
+    protected $elements;
     
-    function addElement(VIPage $page) {
+    public function addElement(VIPage $page) {
         $this->elements[] = $page;
     }
     
-    function allElements() {
+    public function allElements() {
         return $this->elements;
     }
     
-    function htmlRepresentation($class_ul, $pagemap) {
+    public function htmlRepresentation($class_ul) {
     	$html = '<ul class="'.$class_ul.'">';
 	    foreach ($this->allElements() as $page) {
 			$html .= '<li class="';
-			if ($pagemap->isCurrentPage($page)) {
+			if (VIPagemap::isCurrentPage($page)) {
 				$html .= 'active';
 			}
-			if (count($page->childPages)>0) {
+			if (count($page->getChildPages())>0) {
 				$html .= ' dropdown';
 			}
 			$html .= '"><a';
-			if (count($page->childPages)>0) {
+			if (count($page->getChildPages())>0) {
 				$html .= ' class="dropdown-toggle" data-toggle="dropdown"';
 			}
-			$html .= ' href="/'.$page->id.'">'.$page->title;
-			if (count($page->childPages)>0) {
+			$html .= ' href="/'.$page->getID().'">'.$page->title;
+			if (count($page->getChildPages())>0) {
 			  $html .= ' <b class="caret"></b>';
 			}
 			$html .= '</a>';
-			if (count($page->childPages)>0) {
+			if (count($page->getChildPages())>0) {
 				$html .= '<ul class="dropdown-menu">';
-				foreach ($page->childPages as $child) {
+				foreach ($page->getChildPages() as $child) {
 					$html .= '<li';
-					if ($pagemap->isCurrentPage($child)) {
+					if (VIPagemap::isCurrentPage($child)) {
 						$html .= ' class="active"';
 					}
-					$html .= '><a href="/'.$child->id.'">'.$child->title.'</a></li>';
+					$html .= '><a href="/'.$child->getID().'">'.$child->title.'</a></li>';
 				}
 				$html .= '</ul>';
 			}
