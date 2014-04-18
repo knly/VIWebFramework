@@ -58,7 +58,7 @@ class VIPagemap {
         $page = self::getCurrentPage();
         $correct_url = $page->displayURL();
         if ($page->getID()==self::$default_page->getID()) $correct_url = '/';
-        $actual_url = preg_replace ('/\?.*$/', '', $_SERVER['REQUEST_URI']);
+        $actual_url = preg_replace ('/\/?\?.*$/', '', $_SERVER['REQUEST_URI']);
         if ($actual_url != self::$basedir.$correct_url) {Header ("Location: $correct_url", true, 301); exit;}
     }
     
@@ -119,8 +119,8 @@ class VIPage {
     }
 
     public function getFile() {
-	    if (isset($this->file)) {
-		    return $this->file;
+	    if ($this->filename!=null) {
+		    return $this->filename;
 	    }
 	    return $this->id.'.php';
     }
