@@ -13,6 +13,7 @@ class VILogger {
 	protected $key;
 	public $log_level = VI_LOG_LEVEL_UNSPECIFIED;	
 	public $email_logging_to_address = null;
+	public $print_logging_enabled = true;
 
 	static protected $default_logger;
 	protected $parent_logger;
@@ -51,6 +52,14 @@ class VILogger {
 			return $this->email_logging_to_address;
 		} else {
 			return $this->parent_logger->getEmailLoggingToAddress();
+		}
+	}
+	
+	public function isPrintLoggingEnabled() {
+		if ($this->print_logging_enabled!=true||$this->parent_logger==null) {
+			return $this->print_logging_enabled;
+		} else {
+			return $this->parent_logger->isPrintLoggingEnabled();
 		}
 	}
 	
@@ -140,7 +149,10 @@ class VILogger {
 	    
 	    $log_str = $key_path.':'.$level_string.': '.$log_str;
 	    
-	    echo '<pre>'.$log_str.'</pre>';
+	    $print_logging_enabled = $this->isPrintLoggingEnabled();
+	    if ($print_logging_enabled) {
+		    echo '<pre>'.$log_str.'</pre>';
+	    }
 	    
 	    $email_logging_to_address = $this->getEmailLoggingToAddress();
 	    if ($email_logging_to_address!=null) {
