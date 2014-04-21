@@ -165,6 +165,16 @@ class VILogger {
 	    }
 
 	}
+	
+	public function configureErrorReporting($log_level=VI_LOG_LEVEL_DEBUG) {
+		if ($log_level < $this->getLogLevel()) {
+		    error_reporting(0);
+		} else {
+	        ini_set('display_startup_errors',1);
+		    ini_set('display_errors',1);
+		    error_reporting(-1);
+		}
+	}
 
 }
 
