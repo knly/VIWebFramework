@@ -173,6 +173,11 @@ class VIPage {
 class VINavigation {
     
     protected $elements;
+    protected $id;
+    
+    public function __construct($id) {
+	    $this->id = $id;
+    }
     
     public function addElement(VIPage $page) {
         $this->elements[] = $page;
@@ -182,8 +187,8 @@ class VINavigation {
         return $this->elements;
     }
     
-    public function htmlRepresentation($class_ul) {
-    	$html = '<ul class="'.$class_ul.'">';
+    public function getHTML($class='') {
+    	$html = '<ul id="'.$this->id.'" class="'.$class.'">';
 	    foreach ($this->allElements() as $page) {
 			$html .= '<li class="';
 			if (VIPagemap::isCurrentPage($page)) {
