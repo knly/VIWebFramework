@@ -160,7 +160,12 @@ class VIPage {
 		    $replaced_url_items = array();
 		    foreach ($url_items as $url_item) {
 			    if ($url_item!=''&&$url_item[0]=='$') {
-				    $url_item = $_GET[substr($url_item, 1)];
+			    	$key = substr($url_item, 1);
+			    	if (isset($_GET[$key])) {
+					    $url_item = $_GET[$key];
+			    	} else {
+				    	$url_item = 'undefined';
+			    	}
 			    }
 			    $replaced_url_items[] = $url_item;
 		    }

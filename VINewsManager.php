@@ -11,6 +11,9 @@ class VINewsManager {
     }
 
     static public function getItem($id) {
+    	if (!isset(self::$items[$id])) {
+	    	return null;
+    	}
 	    return self::$items[$id];
     }
     
