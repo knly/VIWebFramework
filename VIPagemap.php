@@ -3,20 +3,23 @@
 class VIPagemap {
 
     static protected $pages = array();
-    
+
     // URL to document root
     static public $baseurl;
     // Dir on server
     static public $basedir;
-    
-    // the page to load when none is specified
-    static public $default_page;
-    
+
+	// the page to load when none is specified
+	static public $default_page;
+
     // error page
     static public $error_page;
-    
+
     // main title
     static public $main_title;
+
+	// A navigation (categorize articles, or whatever you wanna do with it)
+	static public $nav = Array();
 
 
     static public function addPage($id) {
@@ -34,7 +37,7 @@ class VIPagemap {
     static public function allPages() {
         return self::$pages;
     }
-    
+
     static public function getCurrentPage() {
         $current_page = NULL;
         if (isset($_GET['p'])) {
@@ -48,11 +51,11 @@ class VIPagemap {
     static public function isCurrentPage($page) {
         return self::getCurrentPage()==$page;
     }
-    
+
     static public function getUrlForPage($page) {
         return self::$baseurl.$page->displayURL();
     }
-    
+
     static public function checkURL() {
         // redirect when directly accessing index.php
         $page = self::getCurrentPage();
@@ -61,10 +64,10 @@ class VIPagemap {
         $actual_url = preg_replace ('/\/?\?.*$/', '', $_SERVER['REQUEST_URI']);
         if ($actual_url != self::$basedir.$correct_url) {Header ("Location: $correct_url", true, 301); exit;}
     }
-    
+
     // TODO: implement properly
     static public function makeSitemap() {
-    
+
         header('Content-Type: application/xml');
 
         echo '<?xml version="1.0" encoding="utf-8"?>'."\n";
@@ -85,35 +88,42 @@ class VIPagemap {
         echo "</urlset>";
     }
 
+	static public function addNavEntry($value) {
+		array_push(self::$nav, $value);
+	}
+	static public function getNav() {
+		return self::$nav;
+	}
+
 }
 
 class VIPage {
-    
+
     // identifies the page
     protected $id;
-    
+
     // the corresponding filename
     public $filename;
-    
+
     // when set, checkURL() redirects to the specified url and an appropriate rewrite rule is needed (-> /.htaccess)
     // url items prepended with the $ character are replaced with the value of the $_GET variable of the same name
     public $display_url;
-    
+
     // optional array to specify options
     public $options = array();
-    
+
     // when set to another page, that page gets included instead
     public $forward;
-    
+
     // tree structure for nested pages
     protected $parentPage;
     protected $childPages;
-    
+
     // constructor
     public function __construct($id) {
         $this->id = $id;
     }
-    
+
     public function getID() {
 	    return $this->id;
     }
@@ -141,7 +151,7 @@ class VIPage {
     public function getChildPages() {
 	    return $this->childPages;
     }
-    
+
     public function isChildOf(VIPage $page) {
         $the_current_page = $this->parentPage;
         while(isset($the_current_page)) {
@@ -150,9 +160,9 @@ class VIPage {
         }
         return false;
     }
-    
-    
-    
+
+
+
     public function displayURL() {
 	    if (isset($this->display_url)) {
 		    $display_url = $this->display_url;
@@ -176,22 +186,22 @@ class VIPage {
 }
 
 class VINavigation {
-    
+
     protected $elements;
     protected $id;
-    
+
     public function __construct($id) {
 	    $this->id = $id;
     }
-    
+
     public function addElement(VIPage $page) {
         $this->elements[] = $page;
     }
-    
+
     public function allElements() {
         return $this->elements;
     }
-    
+
     public function getHTML($class='') {
     	$html = '<ul id="'.$this->id.'" class="'.$class.'">';
 	    foreach ($this->allElements() as $page) {
@@ -229,7 +239,7 @@ class VINavigation {
 		return $html;
 
     }
-    
+
 }
 
 ?>
